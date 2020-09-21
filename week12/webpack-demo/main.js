@@ -23,12 +23,12 @@ class Carousel extends Component {
             let startX = event.clientX;
             let move = event => {
                 let x = event.clientX - startX;
-                let current = position - ((x - x % 500) / 500)
+                let current = position - ((x - x % 280) / 280)
                 for (let offset of [-1, 0, 1]) {
                     let pos = current + offset;
                     pos = (pos + children.length) % children.length;
                     children[pos].style.transition = "none";
-                    children[pos].style.transform = `translateX(${-position * 280 + offset * 280 + x % 280}px)`;
+                    children[pos].style.transform = `translateX(${-pos * 280 + offset * 280 + x % 280}px)`;
                 }
 
             }
@@ -39,7 +39,7 @@ class Carousel extends Component {
                     let pos = position + offset;
                     pos = (pos + children.length) % children.length;
                     children[pos].style.transition = "";
-                    children[pos].style.transform = `translateX(${-position * 280 + offset * 280}px)`;
+                    children[pos].style.transform = `translateX(${-pos * 280 + offset * 280}px)`;
                 }
                 document.removeEventListener("mousemove", move);
                 document.removeEventListener("mouseup", up);
