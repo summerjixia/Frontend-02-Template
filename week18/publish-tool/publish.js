@@ -1,25 +1,35 @@
 let http = require('http');
 let fs = require('fs');
+let archiver = require('archiver');
+let child_process = require("child_process");
+let querystring = require('querystring');
 
+//1. 打开 https://github.com/login/oauth/authorize
+child_process.exec(`start https://github.com/login/oauth/authorize?client_id=Iv1.a936cfc4154cde86`)
+//3. 创建server,接受token,点击发布
+http.createServer(function (request, response) {
+    let query = querystring.parse(request.url.match(/^\/\?([\s\S]+)$/)[1]);
+    publish(query.token)
+}).listen(8083)
+function publish(token) {
+    let request = http.request({
+        hostname: "127.0.0.1",
+        port: 8082,
+        method: 'POST',
+        path: `/publish?token=${token}`,
+        headers: {
+            'Content-Type': 'application/octet-stream',
+            // "Content-Length": stats.size
+        }
+    }, response => {
+        // console.log(response)
+    })
 
-let request = http.request({
-    hostname: "127.0.0.1",
-    port: 8882,
-    method: 'post',
-    headers: {
-        'Content-Type': 'application/octet-stream'
-    }
-}, response => {
-    // console.log(response)
-})
+    const archive = archiver('zip', {
+        zlib: { level: 9 }
+    })
 
-let file = fs.createReadStream("./sample.html");
-
-file.on('data', chunk => {
-    request.write(chunk.toString())
-})
-
-file.on('end', chunk => {
-    console.log('fs end');
-    request.end();
-})
+    archive.directory('./sample/', false);
+    archive.pipe(request);
+    archive.finalize();
+}
